@@ -52,3 +52,6 @@ src/
 - Ветки: `feature/...`, `fix/...`, `chore/...`, `docs/...`.
 - Коммиты: Conventional Commits (`feat:`, `fix:`, `docs:`, `chore:`, `test:`, `refactor:`).
 - Мелкие частые коммиты, один PR — одна задача.
+- Как сливаем: Squash and Merge
+- Ветки удаляются после слияния с main
+- Merge делает ревьювер после апрува
