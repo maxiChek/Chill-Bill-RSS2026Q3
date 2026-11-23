@@ -1,5 +1,5 @@
 import type { Group, Expense } from '../models/types';
-import type { GroupRepository } from '../repositories/GroupRepository';
+import type { GroupRepository } from './GroupRepository';
 
 export class LocalStorageGroupRepository implements GroupRepository {
   private readonly storageKey = 'chill-bill-groups';
@@ -8,7 +8,13 @@ export class LocalStorageGroupRepository implements GroupRepository {
   private getStoredGroups(): Group[] {
     try {
       const data = localStorage.getItem(this.storageKey);
-      return data ? JSON.parse(data) : [];
+
+      if (!data) {
+        return [];
+      }
+      const parsed = JSON.parse(data);
+
+      return Array.isArray(parsed) ? parsed : [];
     } catch {
       return [];
     }
@@ -16,7 +22,13 @@ export class LocalStorageGroupRepository implements GroupRepository {
 
   // Helper to save data
   private saveGroups(groups: Group[]): void {
-    localStorage.setItem(this.storageKey, JSON.stringify(groups));
+    try {
+      localStorage.setItem(this.storageKey, JSON.stringify(groups));
+    } catch {
+      throw new Error('Failed to save data');
+      // later we might notify the user
+      // that storage is full or blocked.
+    }
   }
 
   // --- Implement the interface methods ---
