@@ -19,10 +19,10 @@ export function createGroupView({ onSubmit, onCancel }: CreateGroupViewHandlers)
   form.className = 'create-group-form';
 
   const nameLabel = createLabel('Название группы', 'group-name');
-  const nameInput = createTextField('group-name', 'group-name', 'Ужин в ресторане');
+  const nameInput = createTextField('group-name', 'Ужин в ресторане');
 
   const membersLabel = createLabel('Участники', 'member-name');
-  const membersName = createTextField('member-name', 'member-name', 'Введите имя');
+  const membersName = createTextField('member-name', 'Введите имя');
   const addMemberButton = document.createElement('button');
   addMemberButton.type = 'button';
   addMemberButton.textContent = 'Добавить';
@@ -50,16 +50,21 @@ export function createGroupView({ onSubmit, onCancel }: CreateGroupViewHandlers)
     membersWrapper.replaceChildren(...membersElements);
   };
 
-  addMemberButton.addEventListener('click', () => {
-    members = [
-      ...members,
-      {
-        id: crypto.randomUUID(),
-        name: membersName.value,
-      },
-    ];
+  const addMember = () => {
+    const name = membersName.value.trim();
+    if (name === '') return;
+
+    members = [...members, { id: crypto.randomUUID(), name }];
     membersName.value = '';
     renderMembers();
+  };
+
+  addMemberButton.addEventListener('click', addMember);
+
+  membersName.addEventListener('keydown', (event) => {
+    if (event.key !== 'Enter') return;
+    event.preventDefault();
+    addMember();
   });
 
   const buttons = document.createElement('div');
