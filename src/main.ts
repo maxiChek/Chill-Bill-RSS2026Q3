@@ -31,18 +31,25 @@ const app = document.createElement('div');
 document.body.append(app);
 app.id = 'app';
 
-const groupsViewHandlers = {
-  onOpen: (groupId: string) => void groupId,
-  onCreate: () =>
-    app.replaceChildren(
-      createGroupView({
-        onSubmit: (group) => {
-          groups = [...groups, group];
-          app.replaceChildren(groupsView(groups, groupsViewHandlers));
-        },
-        onCancel: () => app.replaceChildren(groupsView(groups, groupsViewHandlers)),
-      }),
-    ),
+const showGroups = () => {
+  app.replaceChildren(groupsView(groups, groupsViewHandlers));
 };
 
-app.append(groupsView(groups, groupsViewHandlers));
+const showCreateGroup = () => {
+  app.replaceChildren(
+    createGroupView({
+      onSubmit: (group) => {
+        groups = [...groups, group];
+        showGroups();
+      },
+      onCancel: showGroups,
+    }),
+  );
+};
+
+const groupsViewHandlers = {
+  onOpen: (groupId: string) => void groupId,
+  onCreate: showCreateGroup,
+};
+
+showGroups();
