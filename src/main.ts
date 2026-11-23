@@ -1,9 +1,10 @@
 import { groupsView } from './ui/groupsView';
+import { createGroupView } from './ui/createGroupView';
 import type { Group } from './models/types';
 import './style.css';
 
 // Временные моковые данные для проверки рендеринга
-const groups: Group[] = [
+let groups: Group[] = [
   {
     id: crypto.randomUUID(),
     name: 'Поездка в Щучинщину',
@@ -30,9 +31,18 @@ const app = document.createElement('div');
 document.body.append(app);
 app.id = 'app';
 
-app.append(
-  groupsView(groups, {
-    onOpen: (groupId) => void groupId,
-    onCreate: () => null,
-  }),
-);
+const groupsViewHandlers = {
+  onOpen: (groupId: string) => void groupId,
+  onCreate: () =>
+    app.replaceChildren(
+      createGroupView({
+        onSubmit: (group) => {
+          groups = [...groups, group];
+          app.replaceChildren(groupsView(groups, groupsViewHandlers));
+        },
+        onCancel: () => app.replaceChildren(groupsView(groups, groupsViewHandlers)),
+      }),
+    ),
+};
+
+app.append(groupsView(groups, groupsViewHandlers));
