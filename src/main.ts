@@ -1,5 +1,6 @@
 import { groupsView } from './ui/groupsView';
 import { createGroupView } from './ui/createGroupView';
+import { createOperationView } from './ui/createOperationView';
 import type { Group } from './models/types';
 import './style.css';
 
@@ -47,8 +48,26 @@ const showCreateGroup = () => {
   );
 };
 
+const showCreateOperation = (groupId: string) => {
+  const group = groups.find((g) => g.id === groupId);
+  if (!group) return;
+
+  app.replaceChildren(
+    createOperationView(group.members, {
+      onSubmit: (expense) => {
+        // --- Заглушка ---
+        group.expenses.push(expense);
+        alert(`Операция "${expense.name}" на сумму ${expense.total / 100} руб. добавлена!`);
+
+        showGroups();
+      },
+      onCancel: showGroups,
+    }),
+  );
+};
+
 const groupsViewHandlers = {
-  onOpen: (groupId: string) => void groupId,
+  onOpen: (groupId: string) => showCreateOperation(groupId),
   onCreate: showCreateGroup,
 };
 
