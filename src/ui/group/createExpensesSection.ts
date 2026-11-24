@@ -19,8 +19,8 @@ export function createExpensesSection(group: Group) {
     const expense = document.createElement('div');
     expense.className = 'expense';
 
-    const expenseName = document.createElement('span');
-    expenseName.textContent = e.name;
+    const expenseTitle = document.createElement('span');
+    expenseTitle.textContent = `${e.name} / ${e.date}`;
 
     const editExpenseButton = document.createElement('button');
     editExpenseButton.type = 'button';
@@ -46,7 +46,7 @@ export function createExpensesSection(group: Group) {
       .join(', ')}`;
 
     expense.append(
-      expenseName,
+      expenseTitle,
       editExpenseButton,
       deleteExpenseButton,
       expenseTotal,
