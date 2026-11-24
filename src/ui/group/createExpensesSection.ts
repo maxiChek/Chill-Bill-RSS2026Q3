@@ -2,7 +2,7 @@ import type { Group } from '../../models/types';
 import { getMemberName } from '../helpers/members';
 
 export function createExpensesSection(group: Group) {
-  const expensesSection = document.createElement('div');
+  const expensesSection = document.createElement('section');
   expensesSection.className = 'expenses-section';
 
   const expensesHeading = document.createElement('h2');

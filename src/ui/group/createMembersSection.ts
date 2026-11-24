@@ -9,7 +9,7 @@ export function createMembersSection(
   group: Group,
   { onAddMember, onDeleteMember }: GroupMembersSectionHandlers,
 ) {
-  const membersSection = document.createElement('div');
+  const membersSection = document.createElement('section');
   membersSection.className = 'members-section';
 
   const memberHeading = document.createElement('h2');

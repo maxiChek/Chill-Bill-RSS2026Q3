@@ -2,7 +2,7 @@ import type { Group, Transfer } from '../../models/types';
 import { getMemberName } from '../helpers/members';
 
 export function createBalancesSection(group: Group, transfers: Transfer[]) {
-  const balancesSection = document.createElement('div');
+  const balancesSection = document.createElement('section');
   balancesSection.className = 'balances-section';
 
   const balancesHeading = document.createElement('h2');
