@@ -11,17 +11,18 @@ type GroupViewHandlers = {
   onBack: () => void;
   onAddMember: () => void;
   onDeleteMember: (memberId: string) => void;
+  onRename: () => void;
 };
 
 export function groupView(
   group: Group,
-  { onDelete, onBack, onAddMember, onDeleteMember }: GroupViewHandlers,
+  { onDelete, onBack, onAddMember, onDeleteMember, onRename }: GroupViewHandlers,
 ) {
   const container = document.createElement('div');
   container.className = 'container';
 
   container.append(
-    createGroupHeader(group, { onDelete, onBack }),
+    createGroupHeader(group, { onDelete, onBack, onRename }),
     createMembersSection(group, { onAddMember, onDeleteMember }),
     createBalancesSection(group, calculateSettlement(group)),
     createExpensesSection(group),
