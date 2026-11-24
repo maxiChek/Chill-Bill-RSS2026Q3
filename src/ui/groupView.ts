@@ -1,3 +1,4 @@
+import { getMemberName } from './helpers/members';
 import type { Group, Transfer } from '../models/types';
 
 type GroupViewHandlers = {
@@ -85,8 +86,8 @@ export function groupView(group: Group, { onDelete, onBack, onAddMember }: Group
 
   const balancesElements = tempTransfers.map((t) => {
     const balanceItem = document.createElement('p');
-    const debtorName = group.members.find((m) => m.id === t.fromMemberId)?.name;
-    const lenderName = group.members.find((m) => m.id === t.toMemberId)?.name;
+    const debtorName = getMemberName(group.members, t.fromMemberId);
+    const lenderName = getMemberName(group.members, t.toMemberId);
     balanceItem.textContent = `${debtorName} → ${lenderName} ${t.amount} рублей`;
     return balanceItem;
   });
@@ -126,14 +127,14 @@ export function groupView(group: Group, { onDelete, onBack, onAddMember }: Group
     expenseTotal.textContent = `${e.total} руб`;
 
     const expensePayer = document.createElement('p');
-    expensePayer.textContent = `Оплатил: ${group.members.find((m) => m.id === e.paidById)?.name}`;
+    expensePayer.textContent = `Оплатил: ${getMemberName(group.members, e.paidById)}`;
 
     const expenseDebtors = document.createElement('p');
     expenseDebtors.textContent = `Должники: ${e.splits
       .map((split) => {
-        const debtor = group.members.find((m) => m.id === split.memberId);
+        const debtor = getMemberName(group.members, split.memberId);
         if (!debtor) return;
-        return `${debtor.name} (${split.amount} руб)`;
+        return `${debtor} (${split.amount} руб)`;
       })
       .join(', ')}`;
 
