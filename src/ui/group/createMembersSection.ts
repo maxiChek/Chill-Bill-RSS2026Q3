@@ -2,7 +2,7 @@ import type { Group } from '../../models/types';
 
 type GroupMembersSectionHandlers = {
   onAddMember: () => void;
-  onDeleteMember: () => void;
+  onDeleteMember: (memberId: string) => void;
 };
 
 export function createMembersSection(
@@ -25,7 +25,7 @@ export function createMembersSection(
     const deleteMemberButton = document.createElement('button');
     deleteMemberButton.type = 'button';
     deleteMemberButton.textContent = '❌';
-    deleteMemberButton.addEventListener('click', () => onDeleteMember());
+    deleteMemberButton.addEventListener('click', () => onDeleteMember(m.id));
 
     memberWrapper.append(memberName, deleteMemberButton);
     return memberWrapper;

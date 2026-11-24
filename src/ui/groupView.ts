@@ -10,7 +10,7 @@ type GroupViewHandlers = {
   onDelete: (groupId: string) => void;
   onBack: () => void;
   onAddMember: () => void;
-  onDeleteMember: () => void;
+  onDeleteMember: (memberId: string) => void;
 };
 
 export function groupView(
