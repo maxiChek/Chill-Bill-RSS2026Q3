@@ -20,19 +20,19 @@ let groups: Group[] = [
         name: 'Аренда машины',
         date: '12.10.2026',
         paidById: 'member11',
-        total: 99,
+        total: 9900,
         splits: [
           {
             memberId: 'member11',
-            amount: 33,
+            amount: 3300,
           },
           {
             memberId: 'member12',
-            amount: 33,
+            amount: 3300,
           },
           {
             memberId: 'member13',
-            amount: 33,
+            amount: 3300,
           },
         ],
         comment: 'Машина хорошая',
@@ -42,19 +42,19 @@ let groups: Group[] = [
         name: 'Обед',
         date: '12.10.2026',
         paidById: 'member12',
-        total: 100,
+        total: 10000,
         splits: [
           {
             memberId: 'member11',
-            amount: 30,
+            amount: 3000,
           },
           {
             memberId: 'member12',
-            amount: 30,
+            amount: 3000,
           },
           {
             memberId: 'member13',
-            amount: 40,
+            amount: 4000,
           },
         ],
         comment: 'Бензин дорогой',

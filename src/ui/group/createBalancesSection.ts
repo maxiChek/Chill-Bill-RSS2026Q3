@@ -1,4 +1,5 @@
 import type { Group, Transfer } from '../../models/types';
+import { formatMoney } from '../../domain/money';
 import { getMemberName } from '../helpers/members';
 
 export function createBalancesSection(group: Group, transfers: Transfer[]) {
@@ -15,7 +16,7 @@ export function createBalancesSection(group: Group, transfers: Transfer[]) {
     const balanceItem = document.createElement('p');
     const debtorName = getMemberName(group.members, t.fromMemberId);
     const lenderName = getMemberName(group.members, t.toMemberId);
-    balanceItem.textContent = `${debtorName} → ${lenderName} ${t.amount} рублей`;
+    balanceItem.textContent = `${debtorName} → ${lenderName} ${formatMoney(t.amount)}`;
     return balanceItem;
   });
 

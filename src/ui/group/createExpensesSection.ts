@@ -1,4 +1,5 @@
 import type { Group } from '../../models/types';
+import { formatMoney } from '../../domain/money';
 import { getMemberName } from '../helpers/members';
 
 export function createExpensesSection(group: Group) {
@@ -31,7 +32,7 @@ export function createExpensesSection(group: Group) {
     deleteExpenseButton.textContent = '❌';
 
     const expenseTotal = document.createElement('p');
-    expenseTotal.textContent = `${e.total} руб`;
+    expenseTotal.textContent = formatMoney(e.total);
 
     const expensePayer = document.createElement('p');
     expensePayer.textContent = `Оплатил: ${getMemberName(group.members, e.paidById)}`;
@@ -41,7 +42,7 @@ export function createExpensesSection(group: Group) {
       .map((split) => {
         const debtor = getMemberName(group.members, split.memberId);
         if (!debtor) return;
-        return `${debtor} (${split.amount} руб)`;
+        return `${debtor} (${formatMoney(split.amount)})`;
       })
       .join(', ')}`;
 
