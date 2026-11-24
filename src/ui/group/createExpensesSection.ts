@@ -1,0 +1,63 @@
+import type { Group } from '../../models/types';
+import { getMemberName } from '../helpers/members';
+
+export function createExpensesSection(group: Group) {
+  const expensesSection = document.createElement('div');
+  expensesSection.className = 'expenses-section';
+
+  const expensesHeading = document.createElement('h2');
+  expensesHeading.textContent = 'Операции';
+
+  const addOperationButton = document.createElement('button');
+  addOperationButton.type = 'button';
+  addOperationButton.textContent = '➕';
+
+  const expensesWrapper = document.createElement('div');
+  expensesWrapper.className = 'expenses-wrapper';
+
+  const expensesElements = group.expenses.map((e) => {
+    const expense = document.createElement('div');
+    expense.className = 'expense';
+
+    const expenseName = document.createElement('span');
+    expenseName.textContent = e.name;
+
+    const editExpenseButton = document.createElement('button');
+    editExpenseButton.type = 'button';
+    editExpenseButton.textContent = '✏️';
+
+    const deleteExpenseButton = document.createElement('button');
+    deleteExpenseButton.type = 'button';
+    deleteExpenseButton.textContent = '❌';
+
+    const expenseTotal = document.createElement('p');
+    expenseTotal.textContent = `${e.total} руб`;
+
+    const expensePayer = document.createElement('p');
+    expensePayer.textContent = `Оплатил: ${getMemberName(group.members, e.paidById)}`;
+
+    const expenseDebtors = document.createElement('p');
+    expenseDebtors.textContent = `Должники: ${e.splits
+      .map((split) => {
+        const debtor = getMemberName(group.members, split.memberId);
+        if (!debtor) return;
+        return `${debtor} (${split.amount} руб)`;
+      })
+      .join(', ')}`;
+
+    expense.append(
+      expenseName,
+      editExpenseButton,
+      deleteExpenseButton,
+      expenseTotal,
+      expensePayer,
+      expenseDebtors,
+    );
+    return expense;
+  });
+
+  expensesWrapper.append(...expensesElements);
+
+  expensesSection.append(expensesHeading, addOperationButton, expensesWrapper);
+  return expensesSection;
+}
