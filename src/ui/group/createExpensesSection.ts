@@ -2,7 +2,12 @@ import type { Group } from '../../models/types';
 import { formatMoney } from '../../domain/money';
 import { getMemberName } from '../helpers/members';
 
-export function createExpensesSection(group: Group) {
+// тип для обработчиков
+type ExpensesSectionHandlers = {
+  onAddOperation: () => void;
+};
+
+export function createExpensesSection(group: Group, { onAddOperation }: ExpensesSectionHandlers) {
   const expensesSection = document.createElement('section');
   expensesSection.className = 'expenses-section';
 
@@ -12,6 +17,8 @@ export function createExpensesSection(group: Group) {
   const addOperationButton = document.createElement('button');
   addOperationButton.type = 'button';
   addOperationButton.textContent = '➕';
+  // навешиваем клик на кнопку
+  addOperationButton.addEventListener('click', onAddOperation);
 
   const expensesWrapper = document.createElement('div');
   expensesWrapper.className = 'expenses-wrapper';

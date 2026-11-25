@@ -1,6 +1,7 @@
 import { groupsView } from './ui/groupsView';
 import { groupView } from './ui/groupView';
 import { createGroupView } from './ui/createGroupView';
+import { createOperationView } from './ui/createOperationView';
 import type { Group } from './models/types';
 import './style.css';
 
@@ -93,6 +94,23 @@ const showCreateGroup = () => {
   );
 };
 
+const showCreateOperation = (groupId: string) => {
+  const group = groups.find((g) => g.id === groupId);
+  if (!group) return;
+
+  app.replaceChildren(
+    createOperationView(group.members, {
+      onSubmit: (expense) => {
+        // Заглушка
+        group.expenses.push(expense);
+        alert(`Операция "${expense.name}" на сумму ${expense.total / 100} руб. добавлена!`);
+        showGroup(group);
+      },
+      onCancel: () => showGroup(group),
+    }),
+  );
+};
+
 const showGroup = (group: Group) => {
   const updateGroup = (updated: Group) => {
     groups = groups.map((g) => (g.id === updated.id ? updated : g));
@@ -130,6 +148,7 @@ const showGroup = (group: Group) => {
           members: group.members.filter((m) => m.id !== memberId),
         });
       },
+      onAddOperation: () => showCreateOperation(group.id),
     }),
   );
 };
