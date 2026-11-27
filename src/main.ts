@@ -57,6 +57,15 @@ function render() {
           onBack: () => actions.navigateTo('groups'),
           onAddOperation: () => actions.navigateTo('create-operation', activeGroup.id),
 
+          onDeleteOperation: async (expenseId) => {
+            const confirmed = await openConfirmDialog({
+              title: 'Удалить операцию?',
+              text: 'Это действие нельзя отменить.',
+              submitLabel: 'Удалить',
+            });
+            if (confirmed) actions.removeExpense(activeGroup.id, expenseId);
+          },
+
           onDelete: async (id) => {
             const confirmed = await openConfirmDialog({
               title: 'Удалить группу?',

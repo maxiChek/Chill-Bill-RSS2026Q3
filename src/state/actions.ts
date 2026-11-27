@@ -35,6 +35,12 @@ export function createActions(repository: GroupRepository) {
     });
   }
 
+  function removeExpense(groupId: string, expenseId: string): void {
+    repository.removeExpense(groupId, expenseId);
+    const groups = repository.getAll();
+    store.setState({ groups, currentScreen: 'group-details', activeGroupId: groupId });
+  }
+
   function removeGroup(groupId: string): void {
     repository.removeGroup(groupId);
     const groups = repository.getAll();
@@ -92,6 +98,7 @@ export function createActions(repository: GroupRepository) {
     navigateTo,
     createGroup,
     addExpense,
+    removeExpense,
     removeGroup,
     updateGroup,
     addMember,
