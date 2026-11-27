@@ -179,6 +179,12 @@ section {
   border-radius: var(--radius-sm);
 }
 
+.member-buttons {
+  display: flex;
+  gap: var(--space-1);
+  margin-left: auto;
+}
+
 .expense {
   flex-wrap: wrap;
 }

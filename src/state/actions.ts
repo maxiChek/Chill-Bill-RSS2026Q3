@@ -60,6 +60,19 @@ export function createActions(repository: GroupRepository) {
     updateGroup(updatedGroup);
   }
 
+  function editMember(groupId: string, memberId: string, name: string): void {
+    const groups = repository.getAll();
+    const group = groups.find((g) => g.id === groupId);
+    if (!group) return;
+
+    const updatedGroup = {
+      ...group,
+      members: group.members.map((m) => (m.id === memberId ? { ...m, name } : m)),
+    };
+
+    updateGroup(updatedGroup);
+  }
+
   function removeMember(groupId: string, memberId: string): void {
     const groups = repository.getAll();
     const group = groups.find((g) => g.id === groupId);
@@ -82,6 +95,7 @@ export function createActions(repository: GroupRepository) {
     removeGroup,
     updateGroup,
     addMember,
+    editMember,
     removeMember,
   };
 }

@@ -151,6 +151,8 @@ export type TextDialogOptions = {
   cancelLabel?: string;
   /** Return false to keep the dialog open. */
   validate?: (value: string) => boolean;
+  /** Message shown when validation fails. Defaults to 'Заполните поле'. */
+  errorMessage?: string;
 };
 
 /**
@@ -165,6 +167,7 @@ export async function openTextDialog({
   submitLabel = 'Сохранить',
   cancelLabel = 'Отмена',
   validate,
+  errorMessage,
 }: TextDialogOptions): Promise<string | null> {
   const inputId = `dialog-input-${crypto.randomUUID()}`;
   const input = createTextField(inputId, placeholder);
@@ -186,7 +189,7 @@ export async function openTextDialog({
         onClick: () => {
           const trimmed = input.value.trim();
           if (trimmed === '' || (validate && !validate(trimmed))) {
-            input.setCustomValidity('Заполните поле');
+            input.setCustomValidity(errorMessage ?? 'Заполните поле');
             input.reportValidity();
             return false;
           }

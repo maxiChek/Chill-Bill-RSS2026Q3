@@ -7,6 +7,7 @@ import { groupView } from './ui/groupView';
 import { createGroupView } from './ui/createGroupView';
 import { createOperationView } from './ui/createOperationView';
 import { openTextDialog, openConfirmDialog, openAlertDialog } from './ui/helpers/dialog';
+import { openAddMemberDialog, openEditMemberDialog } from './ui/group/memberNameDialog';
 import { isMemberInUse } from './domain/members';
 
 import { MOCK_DATA } from './mocks/mockData';
@@ -77,12 +78,19 @@ function render() {
           },
 
           onAddMember: async () => {
-            const name = await openTextDialog({
-              title: 'Добавить участника',
-              label: 'Имя участника',
-            });
+            const name = await openAddMemberDialog(activeGroup.members);
             if (name) {
               actions.addMember(activeGroup.id, name);
+            }
+          },
+
+          onEditMember: async (memberId) => {
+            const member = activeGroup.members.find((m) => m.id === memberId);
+            if (!member) return;
+
+            const name = await openEditMemberDialog(activeGroup.members, member);
+            if (name && name !== member.name) {
+              actions.editMember(activeGroup.id, memberId, name);
             }
           },
 
