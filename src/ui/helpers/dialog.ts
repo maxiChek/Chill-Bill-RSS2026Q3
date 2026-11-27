@@ -162,8 +162,12 @@ export async function openTextDialog({
         primary: true,
         onClick: () => {
           const trimmed = input.value.trim();
-          if (trimmed === '') return false;
-          if (validate && !validate(trimmed)) return false;
+          if (trimmed === '' || (validate && !validate(trimmed))) {
+            input.setCustomValidity('Заполните поле');
+            input.reportValidity();
+            return false;
+          }
+          input.setCustomValidity('');
           return true;
         },
       },

@@ -20,6 +20,7 @@ export function createGroupView({ onSubmit, onCancel }: CreateGroupViewHandlers)
 
   const nameLabel = createLabel('Название группы', 'group-name');
   const nameInput = createTextField('group-name', 'Ужин в ресторане');
+  nameInput.addEventListener('input', () => nameInput.setCustomValidity(''));
 
   const membersLabel = createLabel('Участники', 'member-name');
   const membersName = createTextField('member-name', 'Введите имя');
@@ -95,9 +96,17 @@ export function createGroupView({ onSubmit, onCancel }: CreateGroupViewHandlers)
 
   form.addEventListener('submit', (event) => {
     event.preventDefault();
+
+    const name = nameInput.value.trim();
+    if (name === '') {
+      nameInput.setCustomValidity('Укажите название группы');
+      nameInput.reportValidity();
+      return;
+    }
+
     onSubmit({
       id: crypto.randomUUID(),
-      name: nameInput.value,
+      name,
       members,
       expenses: [],
     });
