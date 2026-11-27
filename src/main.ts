@@ -14,11 +14,6 @@ import './style.css';
 const repository = new LocalStorageGroupRepository();
 const actions = createActions(repository);
 
-// Инициализация: если в localStorage пусто, засеиваем мок-данными
-if (repository.getAll().length === 0) {
-  MOCK_DATA.forEach((group) => repository.addGroup(group));
-}
-
 const app = document.createElement('div');
 app.id = 'app';
 document.body.append(app);
@@ -32,6 +27,7 @@ function render() {
     case 'groups':
       app.append(
         groupsView(state.groups, {
+          onLoadDemo: () => actions.seedGroups(MOCK_DATA),
           onOpen: (groupId) => actions.navigateTo('group-details', groupId),
           onCreate: () => actions.navigateTo('create-group'),
         }),
