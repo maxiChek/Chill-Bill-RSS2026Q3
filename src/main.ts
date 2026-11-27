@@ -8,11 +8,16 @@ import { createGroupView } from './ui/createGroupView';
 import { createOperationView } from './ui/createOperationView';
 import { openTextDialog, openConfirmDialog } from './ui/helpers/dialog';
 
+import { MOCK_DATA } from './mocks/mockData';
 import './style.css';
 
-// Dependency Injection???
 const repository = new LocalStorageGroupRepository();
 const actions = createActions(repository);
+
+// Инициализация: если в localStorage пусто, засеиваем мок-данными
+if (repository.getAll().length === 0) {
+  MOCK_DATA.forEach((group) => repository.addGroup(group));
+}
 
 const app = document.createElement('div');
 app.id = 'app';
@@ -80,7 +85,7 @@ function render() {
               label: 'Имя участника',
             });
             if (name) {
-              actions.addMember(activeGroup.id, { id: crypto.randomUUID(), name });
+              actions.addMember(activeGroup.id, name);
             }
           },
 
@@ -98,7 +103,10 @@ function render() {
 
     case 'create-operation': {
       const activeGroup = state.groups.find((g) => g.id === state.activeGroupId);
-      if (!activeGroup) return;
+      if (!activeGroup) {
+        actions.navigateTo('groups');
+        return;
+      }
 
       app.append(
         createOperationView(activeGroup.members, {

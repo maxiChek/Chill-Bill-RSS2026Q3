@@ -14,7 +14,7 @@ class Store {
 
   // Get current state
   getState(): AppState {
-    return this.state;
+    return structuredClone(this.state);
   }
 
   // Update state and notify all listeners

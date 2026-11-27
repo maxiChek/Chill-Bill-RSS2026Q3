@@ -1,9 +1,8 @@
 import { store } from './store';
 import type { GroupRepository } from '../repositories/GroupRepository';
-import type { Group, Expense, Member } from '../models/types';
+import type { Group, Expense } from '../models/types';
 import type { Screen } from '../models/types';
 
-// Dependency Injection???
 export function createActions(repository: GroupRepository) {
   function loadGroups(): void {
     const groups = repository.getAll();
@@ -23,7 +22,11 @@ export function createActions(repository: GroupRepository) {
   function addExpense(groupId: string, expense: Expense): void {
     repository.addExpense(groupId, expense);
     const groups = repository.getAll();
-    store.setState({ groups });
+    store.setState({
+      groups,
+      currentScreen: 'group-details',
+      activeGroupId: groupId, // на всякий случай
+    });
   }
 
   function removeGroup(groupId: string): void {
@@ -38,14 +41,14 @@ export function createActions(repository: GroupRepository) {
     store.setState({ groups, currentScreen: 'group-details', activeGroupId: updatedGroup.id });
   }
 
-  function addMember(groupId: string, member: Member): void {
+  function addMember(groupId: string, name: string): void {
     const groups = repository.getAll();
     const group = groups.find((g) => g.id === groupId);
     if (!group) return;
 
     const updatedGroup = {
       ...group,
-      members: [...group.members, member],
+      members: [...group.members, { id: crypto.randomUUID(), name }],
     };
 
     updateGroup(updatedGroup);
