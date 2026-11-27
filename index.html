@@ -4,15 +4,113 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Chill Bill</title>
+    <title>Chill Bill — разделяй счета без ссор</title>
+    <link rel="stylesheet" href="/src/landing.css" />
   </head>
   <body>
-    <h1>Chill Bill</h1>
-    <p>
-      Веб-приложение для быстрого расчёта общих трат в компании. Вы добавляете участников и чеки с
-      указанием плательщика и тех, на кого делится сумма, а алгоритм взаимозачёта сводит все долги в
-      минимальный список прямых переводов.
-    </p>
-    <a href="app.html">В приложение</a>
+    <header class="site-header">
+      <a class="brand" href="index.html">
+        <img class="brand-logo" src="/favicon.svg" alt="" width="28" height="28" />
+        <span>Chill Bill</span>
+      </a>
+      <a class="btn btn-primary" href="app.html">В приложение</a>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="hero-text">
+          <p class="eyebrow">Разделяй счета без ссор</p>
+          <h1>Chill Bill</h1>
+          <p class="lead">
+            Веб-приложение для быстрого расчёта общих трат в компании. Добавляете участников и чеки
+            с указанием плательщика, а алгоритм взаимозачёта сводит все долги в минимальный список
+            переводов.
+          </p>
+
+          <a class="btn btn-primary btn-lg" href="app.html">Начать</a>
+        </div>
+        <img
+          class="hero-image"
+          src="/hero.webp"
+          width="920"
+          height="719"
+          alt="Трое друзей за столом делят счёт через приложение на телефоне"
+        />
+      </section>
+
+      <section id="how" class="steps">
+        <article class="step">
+          <span class="step-num">1</span>
+          <h2>Соберите компанию</h2>
+          <p>Создайте группу и добавьте тех, кто делит расходы.</p>
+        </article>
+        <article class="step">
+          <span class="step-num">2</span>
+          <h2>Внесите чеки</h2>
+          <p>Отметьте, кто за что платил и на кого делится сумма.</p>
+        </article>
+        <article class="step">
+          <span class="step-num">3</span>
+          <h2>Получите итог</h2>
+          <p>Мы посчитаем, кому и сколько перевести — одним списком.</p>
+        </article>
+      </section>
+
+      <section class="team">
+        <h2>Команда проекта</h2>
+        <ul class="team-list">
+          <li>
+            <a
+              class="member"
+              href="https://github.com/maxiChek"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <img
+                class="avatar"
+                src="https://github.com/maxiChek.png?size=200"
+                alt=""
+                width="48"
+                height="48"
+                loading="lazy"
+              />
+              <span class="member-info">
+                <span class="member-name">maxiChek</span>
+                <span class="member-role">
+                  Слой данных, Store и навигация, экран операции и сопутствующая логика.
+                </span>
+              </span>
+            </a>
+          </li>
+          <li>
+            <a
+              class="member"
+              href="https://github.com/konfuzz"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <img
+                class="avatar"
+                src="https://github.com/konfuzz.png?size=200"
+                alt=""
+                width="48"
+                height="48"
+                loading="lazy"
+              />
+              <span class="member-info">
+                <span class="member-name">konfuzz</span>
+                <span class="member-role">
+                  Идея и каркас проекта, модель данных, экраны групп, взаимозачёт, дизайн.
+                </span>
+              </span>
+            </a>
+          </li>
+        </ul>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>Сделано в рамках курса <a href="https://rs.school/">RS School Full Stack 2026</a></p>
+    </footer>
   </body>
 </html>
