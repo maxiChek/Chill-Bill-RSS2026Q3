@@ -78,6 +78,29 @@ export function openDialog({ title, content, actions }: DialogOptions): Promise<
   });
 }
 
+export type AlertDialogOptions = {
+  title: string;
+  text?: string;
+  submitLabel?: string;
+};
+
+/** Alert dialog — a drop-in replacement for window.alert. */
+export async function openAlertDialog({
+  title,
+  text,
+  submitLabel = 'Понятно',
+}: AlertDialogOptions): Promise<void> {
+  const content = document.createElement('p');
+  content.className = 'dialog-content';
+  if (text) content.textContent = text;
+
+  await openDialog({
+    title,
+    content,
+    actions: [{ label: submitLabel, value: 'submit', primary: true }],
+  });
+}
+
 export type ConfirmDialogOptions = {
   title: string;
   text?: string;

@@ -6,7 +6,8 @@ import { groupsView } from './ui/groupsView';
 import { groupView } from './ui/groupView';
 import { createGroupView } from './ui/createGroupView';
 import { createOperationView } from './ui/createOperationView';
-import { openTextDialog, openConfirmDialog } from './ui/helpers/dialog';
+import { openTextDialog, openConfirmDialog, openAlertDialog } from './ui/helpers/dialog';
+import { isMemberInUse } from './domain/members';
 
 import { MOCK_DATA } from './mocks/mockData';
 import './style.css';
@@ -86,6 +87,15 @@ function render() {
           },
 
           onDeleteMember: async (memberId) => {
+            if (isMemberInUse(activeGroup, memberId)) {
+              const member = activeGroup.members.find((m) => m.id === memberId);
+              await openAlertDialog({
+                title: 'Нельзя удалить участника',
+                text: `Участник «${member?.name ?? ''}» участвует в операциях. Сначала удалите или измените связанные расходы.`,
+              });
+              return;
+            }
+
             const confirmed = await openConfirmDialog({
               title: 'Удалить участника?',
               text: 'Вы уверены, что хотите удалить этого участника?',
