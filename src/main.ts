@@ -1,164 +1,123 @@
+import { store } from './state/store';
+import { createActions } from './state/actions';
+import { LocalStorageGroupRepository } from './repositories/LocalStorageGroupRepository';
+
 import { groupsView } from './ui/groupsView';
 import { groupView } from './ui/groupView';
 import { createGroupView } from './ui/createGroupView';
 import { createOperationView } from './ui/createOperationView';
-import type { Group } from './models/types';
+import { openTextDialog, openConfirmDialog } from './ui/helpers/dialog';
+
+import { MOCK_DATA } from './mocks/mockData';
 import './style.css';
 
-// Временные моковые данные для проверки рендеринга
-let groups: Group[] = [
-  {
-    id: 'group1',
-    name: 'Поездка в Щучинщину',
-    members: [
-      { id: 'member11', name: 'Петя' },
-      { id: 'member12', name: 'Вася' },
-      { id: 'member13', name: 'Коля' },
-    ],
-    expenses: [
-      {
-        id: 'exp11',
-        name: 'Аренда машины',
-        date: '12.10.2026',
-        paidById: 'member11',
-        total: 9900,
-        splits: [
-          {
-            memberId: 'member11',
-            amount: 3300,
-          },
-          {
-            memberId: 'member12',
-            amount: 3300,
-          },
-          {
-            memberId: 'member13',
-            amount: 3300,
-          },
-        ],
-        comment: 'Машина хорошая',
-      },
-      {
-        id: 'exp12',
-        name: 'Обед',
-        date: '12.10.2026',
-        paidById: 'member12',
-        total: 10000,
-        splits: [
-          {
-            memberId: 'member11',
-            amount: 3000,
-          },
-          {
-            memberId: 'member12',
-            amount: 3000,
-          },
-          {
-            memberId: 'member13',
-            amount: 4000,
-          },
-        ],
-        comment: 'Бензин дорогой',
-      },
-    ],
-  },
-  {
-    id: 'group2',
-    name: 'Ужин в ресторане',
-    members: [
-      { id: 'member21', name: 'Петя' },
-      { id: 'member22', name: 'Жанна' },
-      { id: 'member23', name: 'Игорь' },
-    ],
-    expenses: [],
-  },
-];
+const repository = new LocalStorageGroupRepository();
+const actions = createActions(repository);
+
+// Инициализация: если в localStorage пусто, засеиваем мок-данными
+if (repository.getAll().length === 0) {
+  MOCK_DATA.forEach((group) => repository.addGroup(group));
+}
 
 const app = document.createElement('div');
-document.body.append(app);
 app.id = 'app';
+document.body.append(app);
 
-const showGroups = () => {
-  app.replaceChildren(groupsView(groups, groupsViewHandlers));
-};
+// Router in-memory
+function render() {
+  const state = store.getState();
+  app.replaceChildren();
 
-const showCreateGroup = () => {
-  app.replaceChildren(
-    createGroupView({
-      onSubmit: (group) => {
-        groups = [...groups, group];
-        showGroup(group);
-      },
-      onCancel: showGroups,
-    }),
-  );
-};
+  switch (state.currentScreen) {
+    case 'groups':
+      app.append(
+        groupsView(state.groups, {
+          onOpen: (groupId) => actions.navigateTo('group-details', groupId),
+          onCreate: () => actions.navigateTo('create-group'),
+        }),
+      );
+      break;
 
-const showCreateOperation = (groupId: string) => {
-  const group = groups.find((g) => g.id === groupId);
-  if (!group) return;
+    case 'create-group':
+      app.append(
+        createGroupView({
+          onSubmit: (newGroup) => actions.createGroup(newGroup),
+          onCancel: () => actions.navigateTo('groups'),
+        }),
+      );
+      break;
 
-  app.replaceChildren(
-    createOperationView(group.members, {
-      onSubmit: (expense) => {
-        // Заглушка
-        group.expenses.push(expense);
-        alert(`Операция "${expense.name}" на сумму ${expense.total / 100} руб. добавлена!`);
-        showGroup(group);
-      },
-      onCancel: () => showGroup(group),
-    }),
-  );
-};
+    case 'group-details': {
+      const activeGroup = state.groups.find((g) => g.id === state.activeGroupId);
+      if (!activeGroup) {
+        actions.navigateTo('groups');
+        return;
+      }
 
-const showGroup = (group: Group) => {
-  const updateGroup = (updated: Group) => {
-    groups = groups.map((g) => (g.id === updated.id ? updated : g));
-    showGroup(updated);
-  };
+      app.append(
+        groupView(activeGroup, {
+          onBack: () => actions.navigateTo('groups'),
+          onAddOperation: () => actions.navigateTo('create-operation', activeGroup.id),
 
-  app.replaceChildren(
-    groupView(group, {
-      onDelete: (groupId) => {
-        groups = groups.filter((g) => g.id !== groupId);
-        showGroups();
-      },
-      onBack: () => showGroups(),
-      onRename: () => {
-        // TODO: заменить prompt на форму переименования группы
-        const name = prompt('Новое название группы', group.name)?.trim();
-        if (!name || name === group.name) return;
+          onDelete: async (id) => {
+            const confirmed = await openConfirmDialog({
+              title: 'Удалить группу?',
+              text: 'Это действие нельзя отменить.',
+              submitLabel: 'Удалить',
+            });
+            if (confirmed) actions.removeGroup(id);
+          },
 
-        updateGroup({ ...group, name });
-      },
-      onAddMember: () => {
-        // TODO: заменить prompt на форму добавления участника
-        const name = prompt('Имя участника')?.trim();
-        if (!name) return;
+          onRename: async () => {
+            const name = await openTextDialog({
+              title: 'Переименовать группу',
+              label: 'Новое название',
+              value: activeGroup.name,
+            });
+            if (name && name !== activeGroup.name) {
+              actions.updateGroup({ ...activeGroup, name });
+            }
+          },
 
-        updateGroup({
-          ...group,
-          members: [...group.members, { id: crypto.randomUUID(), name }],
-        });
-      },
-      onDeleteMember: (memberId) => {
-        // TODO: нужна проверка на участие удаляемого в операциях
-        updateGroup({
-          ...group,
-          members: group.members.filter((m) => m.id !== memberId),
-        });
-      },
-      onAddOperation: () => showCreateOperation(group.id),
-    }),
-  );
-};
+          onAddMember: async () => {
+            const name = await openTextDialog({
+              title: 'Добавить участника',
+              label: 'Имя участника',
+            });
+            if (name) {
+              actions.addMember(activeGroup.id, name);
+            }
+          },
 
-const groupsViewHandlers = {
-  onOpen: (groupId: string) => {
-    const group = groups.find((g) => g.id === groupId);
-    if (group) return showGroup(group);
-  },
-  onCreate: showCreateGroup,
-};
+          onDeleteMember: async (memberId) => {
+            const confirmed = await openConfirmDialog({
+              title: 'Удалить участника?',
+              text: 'Вы уверены, что хотите удалить этого участника?',
+            });
+            if (confirmed) actions.removeMember(activeGroup.id, memberId);
+          },
+        }),
+      );
+      break;
+    }
 
-showGroups();
+    case 'create-operation': {
+      const activeGroup = state.groups.find((g) => g.id === state.activeGroupId);
+      if (!activeGroup) {
+        actions.navigateTo('groups');
+        return;
+      }
+
+      app.append(
+        createOperationView(activeGroup.members, {
+          onSubmit: (expense) => actions.addExpense(activeGroup.id, expense),
+          onCancel: () => actions.navigateTo('group-details', activeGroup.id),
+        }),
+      );
+      break;
+    }
+  }
+}
+
+store.subscribe(render);
+actions.loadGroups();

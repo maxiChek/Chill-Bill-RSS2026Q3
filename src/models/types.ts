@@ -31,7 +31,10 @@ export interface Transfer {
   amount: number;
 }
 
+export type Screen = 'groups' | 'group-details' | 'create-group' | 'create-operation';
+
 export interface AppState {
   groups: Group[];
   activeGroupId: string | null;
+  currentScreen: Screen;
 }
