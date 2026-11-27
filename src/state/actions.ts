@@ -9,6 +9,12 @@ export function createActions(repository: GroupRepository) {
     store.setState({ groups });
   }
 
+  function seedGroups(groups: Group[]): void {
+    if (repository.getAll().length !== 0) return;
+    groups.forEach((group) => repository.addGroup(group));
+    loadGroups();
+  }
+
   function navigateTo(screen: Screen, groupId: string | null = null): void {
     store.setState({ currentScreen: screen, activeGroupId: groupId });
   }
@@ -69,6 +75,7 @@ export function createActions(repository: GroupRepository) {
 
   return {
     loadGroups,
+    seedGroups,
     navigateTo,
     createGroup,
     addExpense,

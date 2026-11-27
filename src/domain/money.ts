@@ -11,3 +11,7 @@ export function formatMoney(amountInMinorUnits: number): string {
   const minorText = String(minor).padStart(2, '0');
   return `${major}${moneySettings.minorSeparator}${minorText}${moneySettings.symbol}`;
 }
+
+export function toKopecks(amount: number): number {
+  return Math.round(amount * 100);
+}

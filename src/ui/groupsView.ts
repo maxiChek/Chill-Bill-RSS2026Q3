@@ -1,11 +1,12 @@
 import type { Group } from '../models/types';
 
 type GroupsViewHandlers = {
+  onLoadDemo: () => void;
   onOpen: (groupId: string) => void;
   onCreate: () => void;
 };
 
-export function groupsView(groups: Group[], { onOpen, onCreate }: GroupsViewHandlers) {
+export function groupsView(groups: Group[], { onOpen, onCreate, onLoadDemo }: GroupsViewHandlers) {
   const container = document.createElement('div');
   container.className = 'container';
 
@@ -42,7 +43,21 @@ export function groupsView(groups: Group[], { onOpen, onCreate }: GroupsViewHand
   const groupsListItems = groups.map(createGroupItem);
   groupsList.append(...groupsListItems);
 
-  container.append(heading, createGroupButton, groupsList);
+  container.append(heading, createGroupButton);
+
+  if (groups.length === 0) {
+    const loadDemoButton = document.createElement('button');
+    loadDemoButton.type = 'button';
+    loadDemoButton.textContent = 'Загрузить демо-данные';
+    loadDemoButton.addEventListener('click', onLoadDemo);
+
+    const emptyMessage = document.createElement('p');
+    emptyMessage.textContent = 'У вас пока не создано ни одной группы';
+
+    container.append(loadDemoButton, emptyMessage);
+  } else {
+    container.append(groupsList);
+  }
 
   return container;
 }
