@@ -1,6 +1,7 @@
 import type { Group } from '../../models/types';
 import { formatMoney } from '../../domain/money';
 import { getMemberName } from '../helpers/members';
+import { appendOrEmpty } from '../helpers/list';
 
 // тип для обработчиков
 type ExpensesSectionHandlers = {
@@ -69,7 +70,7 @@ export function createExpensesSection(
     return expense;
   });
 
-  expensesWrapper.append(...expensesElements);
+  appendOrEmpty(expensesWrapper, expensesElements, 'Пока никто ни за что не платил.');
 
   expensesSection.append(expensesHeading, addOperationButton, expensesWrapper);
   return expensesSection;

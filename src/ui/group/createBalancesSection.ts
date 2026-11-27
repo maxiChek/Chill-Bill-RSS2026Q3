@@ -1,6 +1,7 @@
 import type { Group, Transfer } from '../../models/types';
 import { formatMoney } from '../../domain/money';
 import { getMemberName } from '../helpers/members';
+import { appendOrEmpty } from '../helpers/list';
 
 export function createBalancesSection(group: Group, transfers: Transfer[]) {
   const balancesSection = document.createElement('section');
@@ -20,7 +21,7 @@ export function createBalancesSection(group: Group, transfers: Transfer[]) {
     return balanceItem;
   });
 
-  balancesWrapper.append(...balancesElements);
+  appendOrEmpty(balancesWrapper, balancesElements, '🥳 Никто никому ничего не должен!');
   balancesSection.append(balancesHeading, balancesWrapper);
 
   return balancesSection;

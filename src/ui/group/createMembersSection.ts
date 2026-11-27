@@ -1,4 +1,5 @@
 import type { Member } from '../../models/types';
+import { appendOrEmpty } from '../helpers/list';
 
 type MembersSectionHandlers = {
   onAddMember: () => void;
@@ -43,7 +44,7 @@ export function createMembersSection(
 
   const membersWrapper = document.createElement('div');
   membersWrapper.className = 'members-wrapper';
-  membersWrapper.replaceChildren(...membersElements);
+  appendOrEmpty(membersWrapper, membersElements, 'В этой группе пока нет участников');
 
   const addMemberButton = document.createElement('button');
   addMemberButton.type = 'button';
