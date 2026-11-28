@@ -1,4 +1,6 @@
 import { createTextField, createLabel } from './helpers/fields';
+import { createMembersSection } from './group/createMembersSection';
+import { openAddMemberDialog, openEditMemberDialog } from './group/memberNameDialog';
 import type { Member, Group } from '../models/types';
 
 type CreateGroupViewHandlers = {
@@ -20,52 +22,38 @@ export function createGroupView({ onSubmit, onCancel }: CreateGroupViewHandlers)
 
   const nameLabel = createLabel('Название группы', 'group-name');
   const nameInput = createTextField('group-name', 'Ужин в ресторане');
+  nameInput.addEventListener('input', () => nameInput.setCustomValidity(''));
 
-  const membersLabel = createLabel('Участники', 'member-name');
-  const membersName = createTextField('member-name', 'Введите имя');
-  const addMemberButton = document.createElement('button');
-  addMemberButton.type = 'button';
-  addMemberButton.textContent = 'Добавить';
-
-  const membersWrapper = document.createElement('div');
-  membersWrapper.className = 'members-wrapper';
+  const membersContainer = document.createElement('div');
 
   const renderMembers = () => {
-    const membersElements = members.map((member) => {
-      const memberWrapper = document.createElement('div');
-      memberWrapper.className = 'member-wrapper';
-      const memberName = document.createElement('span');
-      memberName.textContent = member.name;
-      const deleteButton = document.createElement('button');
-      deleteButton.type = 'button';
-      deleteButton.textContent = '❌';
-      deleteButton.addEventListener('click', () => {
-        members = members.filter((m) => member.id !== m.id);
-        renderMembers();
-      });
-      memberWrapper.append(memberName, deleteButton);
-      return memberWrapper;
-    });
+    membersContainer.replaceChildren(
+      createMembersSection(members, {
+        onAddMember: async () => {
+          const name = await openAddMemberDialog(members);
+          if (!name) return;
 
-    membersWrapper.replaceChildren(...membersElements);
+          members = [...members, { id: crypto.randomUUID(), name }];
+          renderMembers();
+        },
+        onEditMember: async (memberId) => {
+          const member = members.find((m) => m.id === memberId);
+          if (!member) return;
+
+          const name = await openEditMemberDialog(members, member);
+          if (!name || name === member.name) return;
+
+          members = members.map((m) => (m.id === memberId ? { ...m, name } : m));
+          renderMembers();
+        },
+        onDeleteMember: (memberId) => {
+          members = members.filter((m) => m.id !== memberId);
+          renderMembers();
+        },
+      }),
+    );
   };
-
-  const addMember = () => {
-    const name = membersName.value.trim();
-    if (name === '') return;
-
-    members = [...members, { id: crypto.randomUUID(), name }];
-    membersName.value = '';
-    renderMembers();
-  };
-
-  addMemberButton.addEventListener('click', addMember);
-
-  membersName.addEventListener('keydown', (event) => {
-    if (event.key !== 'Enter') return;
-    event.preventDefault();
-    addMember();
-  });
+  renderMembers();
 
   const buttons = document.createElement('div');
   buttons.className = 'buttons-wrapper';
@@ -80,27 +68,21 @@ export function createGroupView({ onSubmit, onCancel }: CreateGroupViewHandlers)
 
   buttons.append(submitButton, cancelButton);
 
-  form.append(
-    nameLabel,
-    nameInput,
-    membersLabel,
-    membersName,
-    addMemberButton,
-    membersWrapper,
-    buttons,
-  );
+  form.append(nameLabel, nameInput, membersContainer, buttons);
 
-  container.appendChild(heading);
-  container.appendChild(form);
+  container.append(heading, form);
 
   form.addEventListener('submit', (event) => {
     event.preventDefault();
-    onSubmit({
-      id: crypto.randomUUID(),
-      name: nameInput.value,
-      members,
-      expenses: [],
-    });
+
+    const name = nameInput.value.trim();
+    if (name === '') {
+      nameInput.setCustomValidity('Укажите название группы');
+      nameInput.reportValidity();
+      return;
+    }
+
+    onSubmit({ id: crypto.randomUUID(), name, members, expenses: [] });
   });
 
   cancelButton.addEventListener('click', onCancel);

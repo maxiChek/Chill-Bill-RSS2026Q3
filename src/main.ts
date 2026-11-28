@@ -6,7 +6,9 @@ import { groupsView } from './ui/groupsView';
 import { groupView } from './ui/groupView';
 import { createGroupView } from './ui/createGroupView';
 import { createOperationView } from './ui/createOperationView';
-import { openTextDialog, openConfirmDialog } from './ui/helpers/dialog';
+import { openTextDialog, openConfirmDialog, openAlertDialog } from './ui/helpers/dialog';
+import { openAddMemberDialog, openEditMemberDialog } from './ui/group/memberNameDialog';
+import { isMemberInUse } from './domain/members';
 
 import { MOCK_DATA } from './mocks/mockData';
 import './style.css';
@@ -55,6 +57,15 @@ function render() {
           onBack: () => actions.navigateTo('groups'),
           onAddOperation: () => actions.navigateTo('create-operation', activeGroup.id),
 
+          onDeleteOperation: async (expenseId) => {
+            const confirmed = await openConfirmDialog({
+              title: 'Удалить операцию?',
+              text: 'Это действие нельзя отменить.',
+              submitLabel: 'Удалить',
+            });
+            if (confirmed) actions.removeExpense(activeGroup.id, expenseId);
+          },
+
           onDelete: async (id) => {
             const confirmed = await openConfirmDialog({
               title: 'Удалить группу?',
@@ -76,16 +87,32 @@ function render() {
           },
 
           onAddMember: async () => {
-            const name = await openTextDialog({
-              title: 'Добавить участника',
-              label: 'Имя участника',
-            });
+            const name = await openAddMemberDialog(activeGroup.members);
             if (name) {
               actions.addMember(activeGroup.id, name);
             }
           },
 
+          onEditMember: async (memberId) => {
+            const member = activeGroup.members.find((m) => m.id === memberId);
+            if (!member) return;
+
+            const name = await openEditMemberDialog(activeGroup.members, member);
+            if (name && name !== member.name) {
+              actions.editMember(activeGroup.id, memberId, name);
+            }
+          },
+
           onDeleteMember: async (memberId) => {
+            if (isMemberInUse(activeGroup, memberId)) {
+              const member = activeGroup.members.find((m) => m.id === memberId);
+              await openAlertDialog({
+                title: 'Нельзя удалить участника',
+                text: `Участник «${member?.name ?? ''}» участвует в операциях. Сначала удалите или измените связанные расходы.`,
+              });
+              return;
+            }
+
             const confirmed = await openConfirmDialog({
               title: 'Удалить участника?',
               text: 'Вы уверены, что хотите удалить этого участника?',

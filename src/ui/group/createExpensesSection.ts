@@ -1,13 +1,18 @@
 import type { Group } from '../../models/types';
 import { formatMoney } from '../../domain/money';
 import { getMemberName } from '../helpers/members';
+import { appendOrEmpty } from '../helpers/list';
 
 // тип для обработчиков
 type ExpensesSectionHandlers = {
   onAddOperation: () => void;
+  onDeleteOperation: (expenseId: string) => void;
 };
 
-export function createExpensesSection(group: Group, { onAddOperation }: ExpensesSectionHandlers) {
+export function createExpensesSection(
+  group: Group,
+  { onAddOperation, onDeleteOperation }: ExpensesSectionHandlers,
+) {
   const expensesSection = document.createElement('section');
   expensesSection.className = 'expenses-section';
 
@@ -37,6 +42,7 @@ export function createExpensesSection(group: Group, { onAddOperation }: Expenses
     const deleteExpenseButton = document.createElement('button');
     deleteExpenseButton.type = 'button';
     deleteExpenseButton.textContent = '❌';
+    deleteExpenseButton.addEventListener('click', () => onDeleteOperation(e.id));
 
     const expenseTotal = document.createElement('p');
     expenseTotal.textContent = formatMoney(e.total);
@@ -64,7 +70,7 @@ export function createExpensesSection(group: Group, { onAddOperation }: Expenses
     return expense;
   });
 
-  expensesWrapper.append(...expensesElements);
+  appendOrEmpty(expensesWrapper, expensesElements, 'Пока никто ни за что не платил.');
 
   expensesSection.append(expensesHeading, addOperationButton, expensesWrapper);
   return expensesSection;

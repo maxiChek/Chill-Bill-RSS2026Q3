@@ -78,6 +78,29 @@ export function openDialog({ title, content, actions }: DialogOptions): Promise<
   });
 }
 
+export type AlertDialogOptions = {
+  title: string;
+  text?: string;
+  submitLabel?: string;
+};
+
+/** Alert dialog — a drop-in replacement for window.alert. */
+export async function openAlertDialog({
+  title,
+  text,
+  submitLabel = 'Понятно',
+}: AlertDialogOptions): Promise<void> {
+  const content = document.createElement('p');
+  content.className = 'dialog-content';
+  if (text) content.textContent = text;
+
+  await openDialog({
+    title,
+    content,
+    actions: [{ label: submitLabel, value: 'submit', primary: true }],
+  });
+}
+
 export type ConfirmDialogOptions = {
   title: string;
   text?: string;
@@ -128,6 +151,8 @@ export type TextDialogOptions = {
   cancelLabel?: string;
   /** Return false to keep the dialog open. */
   validate?: (value: string) => boolean;
+  /** Message shown when validation fails. Defaults to 'Заполните поле'. */
+  errorMessage?: string;
 };
 
 /**
@@ -142,6 +167,7 @@ export async function openTextDialog({
   submitLabel = 'Сохранить',
   cancelLabel = 'Отмена',
   validate,
+  errorMessage,
 }: TextDialogOptions): Promise<string | null> {
   const inputId = `dialog-input-${crypto.randomUUID()}`;
   const input = createTextField(inputId, placeholder);
@@ -162,8 +188,12 @@ export async function openTextDialog({
         primary: true,
         onClick: () => {
           const trimmed = input.value.trim();
-          if (trimmed === '') return false;
-          if (validate && !validate(trimmed)) return false;
+          if (trimmed === '' || (validate && !validate(trimmed))) {
+            input.setCustomValidity(errorMessage ?? 'Заполните поле');
+            input.reportValidity();
+            return false;
+          }
+          input.setCustomValidity('');
           return true;
         },
       },
