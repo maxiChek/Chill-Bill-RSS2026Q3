@@ -1,5 +1,7 @@
 import { createTextField, createLabel } from './helpers/fields';
 import type { Member, Expense, ExpenseSplit } from '../models/types';
+import { buildEqualSplits } from '../domain/split';
+import { toKopecks } from '../domain/money';
 
 type CreateOperationViewHandlers = {
   onSubmit: (expense: Expense) => void;
@@ -108,17 +110,30 @@ export function createOperationView(
     });
   };
 
-  // Добавить пустую строку
   addSplitBtn.addEventListener('click', () => {
     if (members.length === 0) return;
     currentSplits.push({ memberId: members[0].id, amount: '' });
     renderSplits();
   });
 
-  // Разделить на всех (Пока просто добавляет всех с пустыми суммами)
-  // Реальную логику напишем в domain/buildEqualSplits
   equalSplitBtn.addEventListener('click', () => {
-    currentSplits = members.map((m) => ({ memberId: m.id, amount: '' }));
+    const totalKopecks = toKopecks(Number(amountInput.value));
+
+    if (isNaN(totalKopecks) || totalKopecks <= 0) {
+      return;
+    }
+
+    const splitsInKopecks = buildEqualSplits(
+      totalKopecks,
+      members.map((m) => m.id),
+    );
+
+    // копейки обратно в рубли для отображения в UI
+    currentSplits = splitsInKopecks.map((s) => ({
+      memberId: s.memberId,
+      amount: (s.amount / 100).toString(),
+    }));
+
     renderSplits();
   });
 
@@ -167,21 +182,29 @@ export function createOperationView(
   form.addEventListener('submit', (event) => {
     event.preventDefault();
 
-    // Переводим рубли в копейки (умножаем на 100 и округляем)
-    const totalAmount = Math.round(Number(amountInput.value) * 100);
+    // 1. Переводим общую сумму в копейки
+    const totalAmount = toKopecks(Number(amountInput.value));
 
-    // Собираем сплиты, конвертируя их суммы в копейки
+    // 2. Собираем сплиты, конвертируя их суммы в копейки
     const splits: ExpenseSplit[] = currentSplits.map((s) => ({
       memberId: s.memberId,
-      amount: Math.round(Number(s.amount) * 100),
+      amount: toKopecks(Number(s.amount)),
     }));
 
-    // Валидация минимальная: если сумма не число или 0, не отправляем
+    // 3. Валидация: если сумма не число или 0, не отправляем
     if (isNaN(totalAmount) || totalAmount <= 0) {
       alert('Введите корректную сумму');
       return;
     }
 
+    // 4. ВАЛИДАЦИЯ: сумма долей должна строго равняться общей сумме!
+    const splitsSum = splits.reduce((acc, s) => acc + s.amount, 0);
+    if (splitsSum !== totalAmount) {
+      alert('Сумма долей должна быть равна общей сумме операции');
+      return;
+    }
+
+    // 5. Создаем объект и отправляем
     const expense: Expense = {
       id: crypto.randomUUID(),
       name: nameInput.value,
