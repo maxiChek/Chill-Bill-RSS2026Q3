@@ -182,21 +182,29 @@ export function createOperationView(
   form.addEventListener('submit', (event) => {
     event.preventDefault();
 
-    // Переводим рубли в копейки
+    // 1. Переводим общую сумму в копейки
     const totalAmount = toKopecks(Number(amountInput.value));
 
-    // Собираем сплиты, конвертируя их суммы в копейки
+    // 2. Собираем сплиты, конвертируя их суммы в копейки
     const splits: ExpenseSplit[] = currentSplits.map((s) => ({
       memberId: s.memberId,
       amount: toKopecks(Number(s.amount)),
     }));
 
-    // Валидация минимальная: если сумма не число или 0, не отправляем
+    // 3. Валидация: если сумма не число или 0, не отправляем
     if (isNaN(totalAmount) || totalAmount <= 0) {
       alert('Введите корректную сумму');
       return;
     }
 
+    // 4. ВАЛИДАЦИЯ: сумма долей должна строго равняться общей сумме!
+    const splitsSum = splits.reduce((acc, s) => acc + s.amount, 0);
+    if (splitsSum !== totalAmount) {
+      alert('Сумма долей должна быть равна общей сумме операции');
+      return;
+    }
+
+    // 5. Создаем объект и отправляем
     const expense: Expense = {
       id: crypto.randomUUID(),
       name: nameInput.value,
